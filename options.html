@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>BiliBili 视频书签 - 设置</title>
+    <style>
+        :root {
+            --bg-top: #0d1017;
+            --bg-bottom: #151a26;
+            --card: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text: #e8eaf0;
+            --text-dim: #8b93a7;
+            --accent: #22d3ee;
+            --accent-pink: #fb7299;
+            --ok: #34d399;
+            --err: #f87171;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+            width: 840px;
+            min-height: 480px;
+            margin: 0;
+            padding: 24px;
+            color: var(--text);
+            background:
+                radial-gradient(120% 60% at 50% -10%, rgba(34, 211, 238, 0.10), transparent 60%),
+                linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+        }
+        /* 两张卡片左右并排 */
+        .cards {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+        .card {
+            flex: 1;
+            min-width: 0;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 20px;
+        }
+        h1 {
+            margin: 0 0 4px;
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent), var(--accent-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-dim);
+            margin: 14px 0 6px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 9px 12px;
+            font-size: 13px;
+            color: var(--text);
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
+        }
+        input::placeholder { color: rgba(139, 147, 167, 0.6); }
+        .row { display: flex; gap: 12px; }
+        .row > div { flex: 1; }
+        .checkboxRow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 18px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .checkboxRow input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+        .checkboxRow label { margin: 0; color: var(--text); font-size: 13px; }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 10px 0;
+            font-size: 13px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #testButton {
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+        }
+        #testButton:hover {
+            border-color: rgba(34, 211, 238, 0.4);
+            background: rgba(34, 211, 238, 0.1);
+        }
+        #saveButton {
+            border: none;
+            background: linear-gradient(90deg, var(--accent), #0ea5b7);
+            color: #06222a;
+            font-weight: 600;
+        }
+        #saveButton:hover {
+            box-shadow: 0 0 16px rgba(34, 211, 238, 0.4);
+        }
+        #saveModeButton {
+            border: none;
+            background: linear-gradient(90deg, var(--accent), #0ea5b7);
+            color: #06222a;
+            font-weight: 600;
+        }
+        #saveModeButton:hover {
+            box-shadow: 0 0 16px rgba(34, 211, 238, 0.4);
+        }
+        #modeStatus {
+            margin-top: 12px;
+            font-size: 12px;
+            min-height: 16px;
+            color: var(--text-dim);
+        }
+        #modeStatus.ok { color: var(--ok); }
+        #modeStatus.err { color: var(--err); }
+        button:disabled { opacity: 0.5; cursor: default; }
+        #status {
+            margin-top: 14px;
+            font-size: 12px;
+            min-height: 16px;
+            white-space: pre-wrap;
+            color: var(--text-dim);
+        }
+        #status.ok { color: var(--ok); }
+        #status.err { color: var(--err); }
+        .note {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--card-border);
+            font-size: 11px;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+        .radioRow {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 0;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .radioRow input[type="radio"] {
+            margin-top: 3px;
+            accent-color: var(--accent);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .radioRow label { margin: 0; color: var(--text); font-size: 13px; cursor: pointer; }
+        .radioRow .hint {
+            display: block;
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="cards">
+    <div class="card">
+        <h1>WebDAV 同步设置</h1>
+        <div class="subtitle">将书签同步到 WebDAV 服务器，实现备份与跨设备转移。</div>
+
+        <label for="server">服务器地址</label>
+        <input type="text" id="server" placeholder="https://dav.example.com">
+
+        <div class="row">
+            <div>
+                <label for="username">用户名</label>
+                <input type="text" id="username" placeholder="用户名">
+            </div>
+            <div>
+                <label for="password">密码</label>
+                <input type="password" id="password" placeholder="密码">
+            </div>
+        </div>
+
+        <label for="path">远程文件路径</label>
+        <input type="text" id="path" placeholder="/bilibilimark/bookmarks.json">
+
+        <div class="checkboxRow">
+            <input type="checkbox" id="autoSync">
+            <label for="autoSync">开启自动同步（每 30 秒拉取并合并一次）</label>
+        </div>
+
+        <div class="buttons">
+            <button id="testButton">测试连接</button>
+            <button id="saveButton">保存</button>
+        </div>
+
+        <div id="status"></div>
+
+        <div class="note">
+            同步采用"逐条最后写入优先"合并，两边各自新增/修改/删除的书签都会保留。<br>
+            注意：密码以明文形式保存在本机浏览器存储中，请仅填写专用账号。
+        </div>
+    </div>
+
+    <div class="card">
+        <h1>书签设置</h1>
+        <div class="subtitle">控制同一视频（不同分P）的收藏方式。</div>
+
+        <div class="radioRow">
+            <input type="radio" name="sameVideoMode" id="modeOverwrite" value="overwrite">
+            <label for="modeOverwrite">
+                新收藏覆盖旧收藏
+                <span class="hint">同一视频只保留最新收藏的那一条分P记录</span>
+            </label>
+        </div>
+        <div class="radioRow">
+            <input type="radio" name="sameVideoMode" id="modeKeepAll" value="keepAll">
+            <label for="modeKeepAll">
+                全部保留
+                <span class="hint">同一视频的不同分P同时收藏、同时显示</span>
+            </label>
+        </div>
+
+        <div class="buttons">
+            <button id="saveModeButton">保存设置</button>
+        </div>
+        <div id="modeStatus"></div>
+    </div>
+    </div>
+    <script src="options.js"></script>
+</body>
+</html>

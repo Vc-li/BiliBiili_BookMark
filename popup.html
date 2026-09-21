@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>BiliBili 视频书签</title>
+    <style>
+        :root {
+            --bg-top: #0d1017;
+            --bg-bottom: #151a26;
+            --card: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-hover: rgba(255, 255, 255, 0.07);
+            --text: #e8eaf0;
+            --text-dim: #8b93a7;
+            --accent: #22d3ee;
+            --accent-pink: #fb7299;
+            --ok: #34d399;
+            --err: #f87171;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+            width: 320px;
+            min-height: 560px;
+            margin: 0;
+            color: var(--text);
+            background:
+                radial-gradient(120% 60% at 50% -10%, rgba(34, 211, 238, 0.10), transparent 60%),
+                linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+            background-attachment: fixed;
+        }
+        /* 细深色滚动条 */
+        body::-webkit-scrollbar { width: 6px; }
+        body::-webkit-scrollbar-track { background: transparent; }
+        body::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+        body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.28); }
+
+        .header {
+            padding: 14px 14px 6px;
+        }
+        .brand {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+        .brand h1 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .version {
+            font-size: 10px;
+            color: var(--text-dim);
+            padding: 2px 7px;
+            border: 1px solid var(--card-border);
+            border-radius: 999px;
+            background: var(--card);
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .version:hover {
+            color: var(--accent);
+            border-color: rgba(34, 211, 238, 0.4);
+        }
+        .actions {
+            display: flex;
+            gap: 4px;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        .iconBtn {
+            border: none;
+            background: transparent;
+            padding: 4px;
+            border-radius: 8px;
+            cursor: pointer;
+            line-height: 0;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+        .iconBtn img {
+            width: 22px;
+            height: 22px;
+            opacity: 0.85;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .iconBtn:hover {
+            background: rgba(34, 211, 238, 0.12);
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.25);
+        }
+        .iconBtn:hover img { opacity: 1; transform: translateY(-1px); }
+        .iconBtn:active img { transform: translateY(1px); }
+
+        /* 同步状态行 */
+        #syncStatus {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-dim);
+            padding: 0 16px 8px;
+            min-height: 16px;
+        }
+        #syncStatus::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            flex-shrink: 0;
+        }
+        #syncStatus.ok { color: var(--ok); }
+        #syncStatus.ok::before { background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+        #syncStatus.err { color: var(--err); }
+        #syncStatus.err::before { background: var(--err); box-shadow: 0 0 6px var(--err); }
+
+        /* 书签列表 */
+        #videoList {
+            list-style: none;
+            margin: 0;
+            padding: 4px 12px 14px;
+        }
+        .videoItem {
+            margin: 8px 0;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: var(--card);
+            font-size: 13px;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .videoItem:hover {
+            background: var(--card-hover);
+            border-color: rgba(34, 211, 238, 0.3);
+        }
+        .firstLine {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        .Title {
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+        }
+        .buttonArea { display: flex; gap: 6px; flex-shrink: 0; }
+        .itemButton {
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            cursor: pointer;
+            height: 26px;
+            padding: 0 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .itemButton.go {
+            color: var(--accent);
+            border-color: rgba(34, 211, 238, 0.35);
+        }
+        .itemButton.go:hover {
+            background: rgba(34, 211, 238, 0.15);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+        }
+        .itemButton.del:hover {
+            color: var(--err);
+            border-color: rgba(248, 113, 113, 0.4);
+            background: rgba(248, 113, 113, 0.12);
+        }
+        .secondLine {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 11px;
+            color: var(--text-dim);
+            font-variant-numeric: tabular-nums;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-pink));
+            border-radius: 2px;
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="brand">
+            <h1>BiliBili 视频书签</h1>
+            <span class="version" id="versionBadge" title="双击访问项目主页">v2.0.0</span>
+        </div>
+        <div class="actions">
+            <button class="iconBtn" id="syncButtonIcon" title="同步书签到 WebDAV">
+                <img src="icons/icon-sync.png" alt="同步">
+            </button>
+            <button class="iconBtn" id="downloadButtonIcon" title="导出书签数据">
+                <img src="icons/icon-download.png" alt="导出">
+            </button>
+            <button class="iconBtn" id="uploadButtonIcon" title="导入书签数据">
+                <img src="icons/icon-upload.png" alt="导入">
+            </button>
+            <button class="iconBtn" id="settingsButtonIcon" title="设置">
+                <img src="icons/icon-settings.png" alt="设置">
+            </button>
+        </div>
+    </div>
+    <div id="syncStatus"></div>
+    <ul id="videoList"></ul>
+    <script src="popup.js"></script>
+</body>
+</html>

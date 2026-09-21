@@ -1,0 +1,56 @@
+{
+  "manifest_version": 3,
+  "name": "BiliBili 视频书签",
+  "version": "2.0.0",
+  "description": "启用插件后，视频下方工具栏中会出现一个加号按钮，点击可将视频加入书签并开始追踪当前播放进度。\n支持同一视频多分P的收藏策略设置（新收藏覆盖旧收藏 / 全部保留），书签标题过长时悬停可显示完整内容。\n支持将书签导出为 JSON 文件并重新导入，便于备份与跨设备转移；支持通过 WebDAV 服务器自动同步书签，实现多设备备份。\n支持普通视频和分P视频，暂不支持电影、番剧类视频。",
+  "permissions": [
+    "webNavigation",
+    "activeTab",
+    "storage",
+    "tabs",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://www.bilibili.com/*"
+  ],
+  "optional_host_permissions": [
+    "<all_urls>"
+  ],
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "Background/background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.bilibili.com/video/*"],
+      "js": ["ContentScript/D_DOM.js","ContentScript/C_Kit.js",
+      "ContentScript/B_Content.js","ContentScript/A_MessageHandler.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle",
+      "world": "ISOLATED"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources" :["icons/icons-plus-pink.png"],
+      "matches" :["<all_urls>"]
+    } 
+  ]
+}
+  

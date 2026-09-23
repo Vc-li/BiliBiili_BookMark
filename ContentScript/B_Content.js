@@ -27,7 +27,7 @@ let DOMjs = globalThis.DOMjs;
         const titleElement = document.querySelector('.video-info-title-inner > h1');
         if (titleElement && DOMjs.video){
             console.log('[Content][STORE_VIDEO_INFO] Current Video URL:', window.location.href)
-            let title = `[V3]${titleElement.title}`;
+            let title = titleElement.title;
             if(DOMjs.p != 0){
                 title = `${title}(P${DOMjs.p})`
             }

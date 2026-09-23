@@ -175,6 +175,20 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             })();
             return true;
         }
+        case 'RENAME_BOOKMARK': { // 修改书签标题（popup 触发），更新 updatedAt 保证同步时按最后写入优先传播
+            const { key, title } = message;
+            const now = Math.floor(Date.now() / 1000);
+            (async () => {
+                const res = await chrome.storage.local.get(key);
+                if (!res[key]) { sendResponse({ ok: false }); return; }
+                res[key].title = title;
+                res[key].updatedAt = now;
+                await chrome.storage.local.set({ [key]: res[key] });
+                await cache.refreshSessionCache();
+                sendResponse({ ok: true });
+            })();
+            return true;
+        }
         case 'SYNC_NOW': { // 手动同步（popup 触发）
             (async () => {
                 const { webdavConfig } = await chrome.storage.local.get('webdavConfig');

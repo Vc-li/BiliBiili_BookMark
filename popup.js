@@ -46,6 +46,50 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadBookmarks();
 
+    // 点击标题进入编辑：替换为输入框，回车/失焦保存，Esc 取消
+    function startEditTitle(titleEl, key, originalTitle) {
+        if (titleEl.querySelector('input')) return; // 已在编辑中
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'titleEdit';
+        input.value = originalTitle;
+        titleEl.textContent = '';
+        titleEl.title = '';
+        titleEl.appendChild(input);
+        input.focus();
+        input.select();
+
+        let done = false;
+        function finish(save) {
+            if (done) return;
+            done = true;
+            const newTitle = input.value.trim();
+            if (save && newTitle && newTitle !== originalTitle) {
+                chrome.runtime.sendMessage({ type: 'RENAME_BOOKMARK', key, title: newTitle }, (res) => {
+                    if (res && res.ok) {
+                        titleEl.textContent = newTitle;
+                        titleEl.title = newTitle;
+                    } else {
+                        // 保存失败，还原
+                        titleEl.textContent = originalTitle;
+                        titleEl.title = originalTitle;
+                    }
+                });
+            } else {
+                // 取消或无变化，还原
+                titleEl.textContent = originalTitle;
+                titleEl.title = originalTitle;
+            }
+        }
+        input.addEventListener('keydown', (e) => {
+            e.stopPropagation();
+            if (e.key === 'Enter') finish(true);
+            else if (e.key === 'Escape') finish(false);
+        });
+        input.addEventListener('blur', () => finish(true));
+        input.addEventListener('click', (e) => e.stopPropagation());
+    }
+
     // 渲染一批书签
     function renderBatch() {
         // 计算本次渲染的结束索引
@@ -61,11 +105,12 @@ document.addEventListener('DOMContentLoaded', function() {
             //创建第一行:主题与按钮
             const firstLine = document.createElement('div');
             firstLine.className = 'firstLine';
-            //创建Title元素（title 属性用于悬停显示完整标题）
+            //创建Title元素（title 属性用于悬停显示完整标题；点击可编辑）
             const Title = document.createElement('div');
             Title.className = "Title";
             Title.textContent = videoItem.title;
             Title.title = videoItem.title;
+            Title.addEventListener('click', () => startEditTitle(Title, key, videoItem.title));
             // 创建按钮区域
             const buttonArea = document.createElement('div');
             buttonArea.className = "buttonArea";
